@@ -14,10 +14,10 @@ def get_name
     prompt.ask("What is your character's name?") 
 end
 
-def get_level
-    prompt=TTY::Prompt.new
-    prompt.ask("What is your character's starting level? (choose a number between 1 and 20)")
-end
+# def get_level
+#     prompt=TTY::Prompt.new
+#     prompt.ask("What is your character's starting level? (choose a number between 1 and 20)")
+# end
 
 def get_class
     prompt=TTY::Prompt.new
@@ -63,4 +63,55 @@ end
 
 def char_instance(n, l=1, c_c=nil, r=nil)
     Character.create(name: n, level: l, char_class: c_c, race: r)
+end
+
+######################################
+#STATS
+
+def gen_hitpoints(char_class, constitution)
+    hitpoints = 0
+    case char_class
+    when "Barbarian"
+        hitpoints += 12
+    when "Bard"
+        hitpoints += 8
+    when "Cleric"
+        hitpoints += 8
+    when "Druid"
+        hitpoints += 8
+    when "Fighter"
+        hitpoints += 10
+    when "Monk"
+        hitpoints += 8
+    when "Paladin"
+        hitpoints += 10
+    when "Ranger"
+        hitpoints += 10
+    when "Rogue"
+        hitpoints += 8
+    when "Sorcerer"
+        hitpoints += 6
+    when "Warlock"
+        hitpoints += 8
+    when "Wizard"
+        hitpoints += 6
+    end
+    hitpoints + constitution
+end
+binding.pry
+
+# # when "warlock"
+#     :charisma=array[0]
+#     :wisdom=array[1]
+# # when "wizard"
+#     :charisma=[3]
+#     :wido
+
+def roll_stats
+    array=[]
+    12.times do |x|
+        array<<roll_d20
+    end
+    array.!sort
+    array.pop(3)
 end
