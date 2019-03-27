@@ -29,6 +29,7 @@ ActiveRecord::Schema.define(version: 4) do
     t.integer "level"
     t.string "char_class"
     t.string "race"
+    t.integer "money"
   end
 
   create_table "equipments", force: :cascade do |t|
