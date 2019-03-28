@@ -10,15 +10,22 @@ def greeting
     puts "      Hello and welcome to the character library!"
 end
 
+def buffer(int=1)
+    int.times do
+        puts "\n"
+    end
+end
+
 def ask_task
-    puts "\n\n      If you would like to create a new character enter 'create'\n
+    buffer(2)
+    puts "If you would like to create a new character enter 'create'\n
       If you would like ask a question about existing characters and/or items enter 'question'\n
       To exit the character library, enter 'quit'\n\n"
     response = gets.chomp
     if response == "create"
         character = get_info
         assign_stats(character)
-    puts "      Your stats are being rolled!"
+    puts "Your stats are being rolled!"
     sleeps
     sleeps
     sleeps
@@ -28,14 +35,18 @@ def ask_task
     want_equip?(character)
     elsif response == "question"
         show_query_options
+    elsif response == 'quit'
+        exit
     else
         ask_task
     end
 end 
 
 def get_name
-    puts "      Here we will begin the character creation process"
-    puts "      What is your character's name?"
+    buffer(2)
+    puts "Here we will begin the character creation process"
+    puts "What is your character's name?"
+    buffer()
 end
 
 def sleeps
@@ -47,7 +58,8 @@ def get_info
     get_name
     name = gets.chomp
     get_class
-    char_class = gets.chomp
+    # char_class = gets.chomp
+    char_class = valid_class?(gets.chomp)
     get_race
     race = gets.chomp
     money = get_money(char_class)
@@ -56,12 +68,35 @@ def get_info
     character = char_instantiate(name, 1, char_class, race, money)
 end
 
+def valid_class?(user_entry)
+    array = ["barbarian", "bard", "cleric", "druid", "fighter", "monk",
+    "paladin", "ranger", "rogue", "sorcerer", "warlock", "wizard"]
+    if array.include?(user_entry.downcase)
+        return user_entry.downcase.capitalize
+    else
+        puts "That class name is not recognized.\n
+        Please choose a class from the list."
+        buffer()
+        valid_class?(gets.chomp)
+    end
+end
+
 def get_class
-    puts "What is your character's class?"
+    buffer(2)
+    puts "What is your character's class?\n
+    Choose from:\n
+    [Barbarian] [Bard] [Cleric] [Druid] [Fighter] [Monk] \n
+    [Paladin] [Ranger] [Rogue] [Sorcerer] [Warlock] [Wizard]"
+    buffer()
 end
 
 def get_race
-    puts "What is your character's race?"
+    buffer(2)
+    puts "What is your character's race?\n
+    You may create your own or choose from these standard options:\n
+    [Drow] [Dwarf] [Elf] [Halfling] [Human]\n
+    [Dragonborn] [Gnome] [Half-Elf] [Half-Orc] [Tiefling]"
+    buffer()
 end
 
 def get_money(char_class)
@@ -90,8 +125,9 @@ def get_money(char_class)
         3.times {|x| wallet += roll_d4}
     when "Warlock"
         4.times {|x| wallet += roll_d4}
-    else 
+    when "Wizard"
         4.times {|x| wallet += roll_d4}
+    else
     end
     wallet * 1000
 end
@@ -167,6 +203,7 @@ end
 
 def show_stats(character)
     char_stats = CharacterAttribute.find_by(character_id: character.id)
+    buffer()
     puts "#{character.name}'s ability scores are:\n"
     puts "Strength:      #{char_stats.strength}"
     puts "Dexterity:     #{char_stats.dexterity}"
@@ -176,7 +213,7 @@ def show_stats(character)
     puts "Charisma:      #{char_stats.charisma}"
     puts "Hit Points:    #{char_stats.max_hitpoints}"
     puts "Experience:    #{char_stats.experience_points}"
-    puts
+    buffer(2)
 end
 
 ######################################
@@ -187,8 +224,10 @@ def show_money(char_obj)
 end
 
 def want_equip?(char_obj)
+    buffer(2)
     puts "Congratulations on creating your character! \n
-    Would you like to buy equipment? (y/n)\n"
+    Would you like to buy equipment? ('y' / 'n')\n"
+    buffer()
     show_money(char_obj)
     response = gets.chomp
     if response == "y"
@@ -201,9 +240,8 @@ end
 def equip_store(char_obj)
     puts "Welcome to the equipment store!\n
     Here you can scroll through all available equipment.\n
-    to make a purchase, enter equipment's ID number.
-    \n
-    \n"
+    to make a purchase, enter equipment's ID number."
+    buffer(2)
     show_money(char_obj)
     puts "You may exit the store at any time by entering 'x'.\n
     Press any key to enter the store."
@@ -224,6 +262,7 @@ def show_store(char_obj)
             new_char_obj = Character.find(char_obj.id)
             another_purchase?(new_char_obj)
         else
+            buffer()
             puts "You don't have enough coin!\n
             Try again."
             sleeps
@@ -268,7 +307,8 @@ end
 
 def another_purchase?(char_obj)
     show_money(char_obj)
-    puts "Would you like to make another purchase? (y/n)"
+    buffer()
+    puts "Would you like to make another purchase? ('y' / 'n')"
     response = gets.chomp
     if response == "y"
         show_store(char_obj)
@@ -280,6 +320,7 @@ def another_purchase?(char_obj)
 end
 
 def return_to_main
+    buffer()
     puts "Returning to main menu."
         sleeps
         sleeps
@@ -317,21 +358,27 @@ def query_table
 end
 
 def show_query_options
+    buffer(2)
     puts "Here you will have some possible options to choose from.\n
     Questions that require parameter input will provide additional prompts, when selected.\n
-    To see options enter y, to return to main menu, enter n"
+    To see options enter 'y', to return to main menu, enter 'n'"
+    buffer()
     response = gets.chomp 
     if response == "y"
         puts query_table.render(:basic)
-        puts "\nEnter the ID of the desired query. Enter 0 to return to main menu"
+        puts "\nEnter the ID of the desired query. Enter '0' to return to main menu"
+        buffer()
         r = gets.chomp
         query_by_index(r.to_i)
-        puts "To make another query enter y. To return to main menu enter n"
+        buffer(2)
+        puts "To make another query enter 'y'. To return to main menu enter 'n'"
+        buffer()
         response = gets.chomp
         if response == "y"  
             show_query_options
         else
             ask_task
+        end
     elsif response == "n"
         ask_task
     else
