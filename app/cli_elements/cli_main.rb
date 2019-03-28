@@ -197,7 +197,7 @@ end
 
 
 def show_equipment_table(table)
-    table.render
+    puts table.render(:basic)
 end
 
 def add_equip(equip, char)

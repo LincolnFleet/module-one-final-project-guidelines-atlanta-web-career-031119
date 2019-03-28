@@ -22,6 +22,7 @@ class Character < ActiveRecord::Base
         hash
     end
 
+    #Delivers 
     def total_value_of_items
         total = 0
         items_hash = self.show_items_as_hash
@@ -31,11 +32,13 @@ class Character < ActiveRecord::Base
         total
     end
 
+    #Delivers integer of sum number of equipments owned by character instance
     def total_items 
         items = Inventory.where(self.id == :character_id)
         items.size
     end
 
+    #Delivers integer describing sum of equipments owned weights
     def character_weight
         total_weight = 0
         items = Inventory.where(self.id == :character_id)
@@ -45,6 +48,7 @@ class Character < ActiveRecord::Base
         total_weight
     end
 
+    #Delivers character instance associated with most equipments
     def self.most_items
         items = 0
         character = nil
@@ -58,6 +62,7 @@ class Character < ActiveRecord::Base
         character
     end
 
+    #Delivers character instance associated with fewest equipments
     def self.fewest_items
         items = 1.0/0
         character = nil
@@ -71,6 +76,7 @@ class Character < ActiveRecord::Base
         character
     end
 
+    #Delivers character instance with greatest cumulative sum of equipments owned weight
     def self.most_encumbered
         weight = 0
         character = nil
@@ -83,5 +89,5 @@ class Character < ActiveRecord::Base
         end
         character
     end
-    
+
 end
