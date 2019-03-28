@@ -3,9 +3,9 @@ class Character < ActiveRecord::Base
     has_many :equipments, through: :inventories
 
     def show_items_as_hash
-        items = Inventory.where(self.id == :character_id)
+        items = Inventory.where(character_id: self.id)
         array = items.map do |x|
-            Equipment.find(x).name
+            Equipment.find(x.equipment_id).name
         end
         array_to_hash(array)
     end
@@ -34,16 +34,17 @@ class Character < ActiveRecord::Base
 
     #Delivers integer of sum number of equipments owned by character instance
     def total_items 
-        items = Inventory.where(self.id == :character_id)
+        items = Inventory.where(character_id: self.id)
         items.size
     end
 
     #Delivers integer describing sum of equipments owned weights
     def character_weight
         total_weight = 0
-        items = Inventory.where(self.id == :character_id)
+        items = Inventory.where(character_id: self.id)
         items.each do |i|
-            total_weight += i.weight
+            x = Equipment.find(i.equipment_id).weight
+            total_weight += x if x 
         end
         total_weight
     end

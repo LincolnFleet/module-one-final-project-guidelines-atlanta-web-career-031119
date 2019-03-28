@@ -8,13 +8,13 @@ class Equipment < ActiveRecord::Base
 
     # How many characters own this item
     def how_many_own
-        characters = Inventory.where(self.id == :equipment_id)
+        characters = Inventory.where(equipment_id: self.id)
         characters.uniq.size
     end
 
     # How many instances of an item exist
-    def self.how_many_exist?
-        items = Inventory.where(self.id == :equipment_id)
+    def how_many_exist?
+        items = Inventory.where(equipment_id: self.id)
         items.size
     end
 

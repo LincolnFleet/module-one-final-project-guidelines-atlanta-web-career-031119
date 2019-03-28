@@ -16,9 +16,18 @@ def ask_task
       To exit the character library, enter 'quit'\n\n"
     response = gets.chomp
     if response == "create"
-        get_info
+        character = get_info
+        assign_stats(character)
+    puts "      Your stats are being rolled!"
+    sleeps
+    sleeps
+    sleeps
+    sleeps
+    sleeps
+    show_stats(character)
+    want_equip?(character)
     elsif response == "question"
-        #question_method
+        show_query_options
     else
         ask_task
     end
@@ -45,14 +54,6 @@ def get_info
     puts "Your starting money is determined by your class choice.\n
         This character will be starting with #{money} copper pieces."
     character = char_instantiate(name, 1, char_class, race, money)
-    assign_stats(character)
-    puts "      Your stats are being rolled!"
-    sleeps
-    sleeps
-    sleeps
-    sleeps
-    sleeps
-    show_stats(character)
 end
 
 def get_class
@@ -181,6 +182,59 @@ end
 ######################################
 #EQUIP
 
+def show_money(char_obj)
+    puts "You currently have: #{char_obj.money} copper pieces."
+end
+
+def want_equip?(char_obj)
+    puts "Congratulations on creating your character! \n
+    Would you like to buy equipment? (y/n)\n"
+    show_money(char_obj)
+    response = gets.chomp
+    if response == "y"
+        equip_store(char_obj)
+    else
+        return_to_main
+    end
+end
+
+def equip_store(char_obj)
+    puts "Welcome to the equipment store!\n
+    Here you can scroll through all available equipment.\n
+    to make a purchase, enter equipment's ID number.
+    \n
+    \n"
+    show_money(char_obj)
+    puts "You may exit the store at any time by entering 'x'.\n
+    Press any key to enter the store."
+    STDIN.getch
+    show_store(char_obj)
+end
+
+def show_store(char_obj)
+    store = construct_equipment_table
+    show_equipment_table(store)
+    response = gets.chomp
+    if response == "x"
+        want_equip?(char_obj)
+    elsif response.to_i >= Equipment.all.first.id && response.to_i <= (Equipment.all.first.id) + 256
+        if can_buy?(Equipment.find(response.to_i), char_obj)
+            add_equip(Equipment.find(response.to_i), char_obj)
+            update_char_money(Equipment.find(response.to_i), char_obj)
+            new_char_obj = Character.find(char_obj.id)
+            another_purchase?(new_char_obj)
+        else
+            puts "You don't have enough coin!\n
+            Try again."
+            sleeps
+            sleeps
+            sleeps
+            show_store(char_obj)
+        end
+    else
+        equip_store(char_obj)
+    end
+end
 
 def construct_equipment_table
     table = TTY::Table.new(header: ["Item ID", "Item Name", "Item Cost"], rows: [])
@@ -195,15 +249,152 @@ def add_to_table(table)
     end
 end
 
-
 def show_equipment_table(table)
     puts table.render(:basic)
 end
 
 def add_equip(equip, char)
-    Inventory.create(char.id, equip.id)
+    Inventory.create(character_id: char.id, equipment_id: equip.id)
 end
 
 def can_buy?(equip, char)
     char.money >= equip.cost
+end
+
+def update_char_money(equip_obj, char_obj)
+    new_tot = char_obj.money - equip_obj.cost
+    Character.update(char_obj.id, :money => new_tot)
+end
+
+def another_purchase?(char_obj)
+    show_money(char_obj)
+    puts "Would you like to make another purchase? (y/n)"
+    response = gets.chomp
+    if response == "y"
+        show_store(char_obj)
+    elsif response == "n"
+        return_to_main
+    else
+        another_purchase?(char_obj)
+    end
+end
+
+def return_to_main
+    puts "Returning to main menu."
+        sleeps
+        sleeps
+        sleeps
+        ask_task
+end
+
+##############
+## Ask Questions
+$query_array = ["Show the total Equipment value of a specified character",
+                "Show the number of items (Equipment) that a specified character owns",
+                "Show the total Equipment weight of a specified character",
+                "Which character has the most items (Equipment)?",
+                "Which character has the fewest items (Equipment)?",
+                "Which character is the most Encumbered (heaviest)?",
+                "Show how many characters own a specified (by name) item",
+                "Show how many instances of a specified item exist",
+                "Which item is owned by the most characters?",
+                "What is the most popular weapon?",
+                ]
+
+
+def add_to_query_table(table, query_array)
+    query_array.each_with_index do |q, index|
+        table << [index + 1, q]
+    end
+    table
+end
+
+
+def query_table
+    t = TTY::Table.new(header: ["Query ID", "Query Description"], rows: [])
+    table = add_to_query_table(t, $query_array)
+    table
+end
+
+def show_query_options
+    puts "Here you will have some possible options to choose from.\n
+    Questions that require parameter input will provide additional prompts, when selected.\n
+    To see options enter y, to return to main menu, enter n"
+    response = gets.chomp 
+    if response == "y"
+        puts query_table.render(:basic)
+        puts "\nEnter the ID of the desired Query. Enter 0 to return to main menu"
+        r = gets.chomp
+        query_by_index(r.to_i)
+    elsif response == "n"
+        ask_task
+    else
+        show_query_options
+    end
+end
+
+def query_by_index(int)
+    case int
+    when 0
+        ask_task
+    when 1
+        puts "Please enter the name of the specified character"
+        r = gets.chomp
+        ans = character_equipment_value?(r)
+        puts "#{r}'s total equipment value is #{ans}"
+    when 2
+        puts "Please enter the name of the specified character"
+        r = gets.chomp
+        ans = character_num_items(r)
+        puts "#{r}'s item total is #{ans} item(s)"
+    when 3
+        puts "Please enter the name of the specified character"
+        r = gets.chomp
+        ans = character_equipment_weight(r)
+        puts "#{r}'s total inventory weight is #{ans}"
+    when 4
+        char = Character.most_items
+        puts "The character with the most items (Equipment) is #{char.name}"
+    when 5
+        char = Character.fewest_items 
+        puts "The character with the fewest items (Equipment) is #{char.name}"
+    when 6
+        char = Character.most_encumbered
+        puts "The character with the most inventory weight is #{char.name}"
+    when 7
+        puts "Please enter the name of the specified item"
+        r = gets.chomp
+        ans = how_many_characters_own?(r)
+        puts "#{ans} characters own a(n) #{r}"
+    when 8
+        #Show how many instances of a specified item exist
+        puts "Please enter the name of the specified item"
+        r = gets.chomp
+        ans = Equipment.find_by(name: r).how_many_exist?
+        puts "#{r} has been purchased #{ans} time(s)"
+    when 9
+        #Which item is owned by the most characters?
+        item = Equipment.most_owned_item
+        num_characters = how_many_characters_own?(item.name)
+        puts "#{item.name} is the most owned item with #{num_characters} owners"
+    when 10
+        item = Equipment.most_popular_weapon
+        puts "#{item.name} is the most popular weapon"
+    end
+end
+
+def character_equipment_value?(character_name)
+    Character.find_by(name: character_name).total_value_of_items
+end
+
+def character_num_items(character_name)
+    Character.find_by(name: character_name).total_items
+end
+
+def character_equipment_weight(character_name)
+    Character.find_by(name: character_name).character_weight
+end
+
+def how_many_characters_own?(item_name)
+    Equipment.find_by(name: item_name).how_many_own
 end
