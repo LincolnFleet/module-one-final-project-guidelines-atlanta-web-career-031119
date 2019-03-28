@@ -34,8 +34,10 @@ class Equipment < ActiveRecord::Base
 
     # Most popular item of category ...
     def self.most_popular_weapon
-        weapons = Inventory.all.map do |x|
-            Equipment.find(x.equipment_id).is_weapon?
+        weapons = []
+        Inventory.all.each do |x|
+            item = Equipment.find(x.equipment_id)
+            weapons << item if item.is_weapon? 
         end
         total = 0
         popular_weapon = nil

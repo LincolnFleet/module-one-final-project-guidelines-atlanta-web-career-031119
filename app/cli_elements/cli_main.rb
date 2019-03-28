@@ -323,9 +323,15 @@ def show_query_options
     response = gets.chomp 
     if response == "y"
         puts query_table.render(:basic)
-        puts "\nEnter the ID of the desired Query. Enter 0 to return to main menu"
+        puts "\nEnter the ID of the desired query. Enter 0 to return to main menu"
         r = gets.chomp
         query_by_index(r.to_i)
+        puts "To make another query enter y. To return to main menu enter n"
+        response = gets.chomp
+        if response == "y"  
+            show_query_options
+        else
+            ask_task
     elsif response == "n"
         ask_task
     else
