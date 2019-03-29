@@ -370,6 +370,7 @@ $query_array = ["Show the total Equipment value of a specified character",
                 "Show how many instances of a specified item exist",
                 "Which item is owned by the most characters?",
                 "What is the most popular weapon?",
+                "What are the names of all existing characters?"
                 ]
 
 
@@ -453,8 +454,15 @@ def query_by_index(int)
         puts "Please enter the name of the specified item"
         buffer
         r = gets.chomp
+        if Equipment.find_by(name: r) == nil 
+            puts "We don't recognize this item!" 
+            query_by_index(int)
+        elsif Equipment.find_by(name: r).how_many_exist? == 0
+            puts "No characters own this item!"
+        else
         ans = how_many_characters_own?(r)
         puts "#{ans} characters own a(n) #{r}"
+        end
     when 8
         #Show how many instances of a specified item exist
         puts "Please enter the name of the specified item"
@@ -470,6 +478,9 @@ def query_by_index(int)
     when 10
         item = Equipment.most_popular_weapon
         puts "#{item.name} is the most popular weapon"
+    when 11
+        clear_screen
+        Character.all_characters
     end
 end
 

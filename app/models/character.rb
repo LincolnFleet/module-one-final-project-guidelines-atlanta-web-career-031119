@@ -2,6 +2,13 @@ class Character < ActiveRecord::Base
     has_one :characterattribute
     has_many :equipments, through: :inventories
 
+    def self.all_characters
+        #puts out the names of all created characters
+        Character.all.each do |char|
+            puts char.name
+        end
+    end
+
     def show_items_as_hash
         items = Inventory.where(character_id: self.id)
         array = items.map do |x|
