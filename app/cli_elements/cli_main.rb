@@ -6,8 +6,12 @@ def run_program
     greeting
     ask_task
 end
+
 def greeting
-    puts "      Hello and welcome to the character library!"
+    clear_screen
+    solid_line
+    puts "\t\tHello and welcome to the character library!"
+    solid_line
 end
 
 def buffer(int=1)
@@ -16,11 +20,20 @@ def buffer(int=1)
     end
 end
 
+def solid_line
+    puts "------------------------------------------------------------------------"
+end
+
+def clear_screen
+    system("clear")
+end
+
 def ask_task
     buffer(2)
     puts "If you would like to create a new character enter 'create'\n
-      If you would like ask a question about existing characters and/or items enter 'question'\n
-      To exit the character library, enter 'quit'\n\n"
+If you would like ask a question about existing characters and/or items enter 'query'\n
+To exit the character library, enter 'quit'"
+    buffer(2)
     response = gets.chomp
     if response == "create"
         character = get_info
@@ -33,7 +46,7 @@ def ask_task
     sleeps
     show_stats(character)
     want_equip?(character)
-    elsif response == "question"
+    elsif response == "query"
         show_query_options
     elsif response == 'quit'
         exit
@@ -43,7 +56,8 @@ def ask_task
 end 
 
 def get_name
-    buffer(2)
+    clear_screen
+    buffer(1)
     puts "Here we will begin the character creation process"
     puts "What is your character's name?"
     buffer()
@@ -64,7 +78,7 @@ def get_info
     race = gets.chomp
     money = get_money(char_class)
     puts "Your starting money is determined by your class choice.\n
-        This character will be starting with #{money} copper pieces."
+This character will be starting with #{money} copper pieces."
     character = char_instantiate(name, 1, char_class, race, money)
 end
 
@@ -74,15 +88,15 @@ def valid_class?(user_entry)
     if array.include?(user_entry.downcase)
         return user_entry.downcase.capitalize
     else
-        puts "That class name is not recognized.\n
-        Please choose a class from the list."
+        puts "That class name is not recognized.\nPlease choose a class from the list."
         buffer()
         valid_class?(gets.chomp)
     end
 end
 
 def get_class
-    buffer(2)
+    clear_screen
+    buffer(1)
     puts "What is your character's class?\n
     Choose from:\n
     [Barbarian] [Bard] [Cleric] [Druid] [Fighter] [Monk] \n
@@ -91,7 +105,8 @@ def get_class
 end
 
 def get_race
-    buffer(2)
+    clear_screen
+    buffer(1)
     puts "What is your character's race?\n
     You may create your own or choose from these standard options:\n
     [Drow] [Dwarf] [Elf] [Halfling] [Human]\n
@@ -100,6 +115,7 @@ def get_race
 end
 
 def get_money(char_class)
+    clear_screen
     wallet = 0
     case char_class
     when "Barbarian"
@@ -202,6 +218,7 @@ def assign_stats(char)
 end
 
 def show_stats(character)
+    clear_screen
     char_stats = CharacterAttribute.find_by(character_id: character.id)
     buffer()
     puts "#{character.name}'s ability scores are:\n"
@@ -224,29 +241,38 @@ def show_money(char_obj)
 end
 
 def want_equip?(char_obj)
-    buffer(2)
+    buffer(1)
     puts "Congratulations on creating your character! \n
-    Would you like to buy equipment? ('y' / 'n')\n"
+Would you like to buy equipment? ('y' / 'n')\n"
     buffer()
     show_money(char_obj)
+    buffer
     response = gets.chomp
     if response == "y"
         equip_store(char_obj)
     else
+        clear_screen
         return_to_main
+        clear_screen
     end
 end
 
 def equip_store(char_obj)
-    puts "Welcome to the equipment store!\n
-    Here you can scroll through all available equipment.\n
-    to make a purchase, enter equipment's ID number."
+    clear_screen
+    solid_line
+    puts "\t\t   Welcome to the equipment store!"
+    solid_line
+    buffer(2)
+    puts "Here you can scroll through all available equipment.\n
+to make a purchase, enter equipment's ID number."
     buffer(2)
     show_money(char_obj)
     puts "You may exit the store at any time by entering 'x'.\n
-    Press any key to enter the store."
+Press any key to enter the store."
+    buffer
     STDIN.getch
     show_store(char_obj)
+    buffer
 end
 
 def show_store(char_obj)
@@ -260,6 +286,7 @@ def show_store(char_obj)
             add_equip(Equipment.find(response.to_i), char_obj)
             update_char_money(Equipment.find(response.to_i), char_obj)
             new_char_obj = Character.find(char_obj.id)
+            clear_screen
             another_purchase?(new_char_obj)
         else
             buffer()
@@ -309,6 +336,7 @@ def another_purchase?(char_obj)
     show_money(char_obj)
     buffer()
     puts "Would you like to make another purchase? ('y' / 'n')"
+    buffer
     response = gets.chomp
     if response == "y"
         show_store(char_obj)
@@ -320,11 +348,13 @@ def another_purchase?(char_obj)
 end
 
 def return_to_main
+    clear_screen
     buffer()
     puts "Returning to main menu."
         sleeps
         sleeps
         sleeps
+        clear_screen
         ask_task
 end
 
@@ -358,12 +388,13 @@ def query_table
 end
 
 def show_query_options
-    buffer(2)
+    clear_screen
     puts "Here you will have some possible options to choose from.\n
-    Questions that require parameter input will provide additional prompts, when selected.\n
-    To see options enter 'y', to return to main menu, enter 'n'"
+Questions that require parameter input will provide additional prompts, when selected.\n
+To see options enter 'y', to return to main menu, enter 'n'"
     buffer()
     response = gets.chomp 
+    clear_screen
     if response == "y"
         puts query_table.render(:basic)
         puts "\nEnter the ID of the desired query. Enter '0' to return to main menu"
@@ -389,19 +420,23 @@ end
 def query_by_index(int)
     case int
     when 0
+        clear_screen
         ask_task
     when 1
         puts "Please enter the name of the specified character"
+        buffer
         r = gets.chomp
         ans = character_equipment_value?(r)
         puts "#{r}'s total equipment value is #{ans}"
     when 2
         puts "Please enter the name of the specified character"
+        buffer
         r = gets.chomp
         ans = character_num_items(r)
         puts "#{r}'s item total is #{ans} item(s)"
     when 3
         puts "Please enter the name of the specified character"
+        buffer
         r = gets.chomp
         ans = character_equipment_weight(r)
         puts "#{r}'s total inventory weight is #{ans}"
@@ -416,12 +451,14 @@ def query_by_index(int)
         puts "The character with the most inventory weight is #{char.name}"
     when 7
         puts "Please enter the name of the specified item"
+        buffer
         r = gets.chomp
         ans = how_many_characters_own?(r)
         puts "#{ans} characters own a(n) #{r}"
     when 8
         #Show how many instances of a specified item exist
         puts "Please enter the name of the specified item"
+        buffer
         r = gets.chomp
         ans = Equipment.find_by(name: r).how_many_exist?
         puts "#{r} has been purchased #{ans} time(s)"
